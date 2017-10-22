@@ -1,0 +1,135 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+
+
+public class Parser {
+
+    //lista distance odległości od źródła dla wszystkich wierzchołków grafu
+    public Map<Integer, Integer> distance;
+
+    //lista prev z poprzednikami wierzchołków
+    public Map<Integer, Integer> prev;
+
+    //zbiór wierzchołków grafu o policzonych już najkrótszych ścieżkach od wybranego wierzchołka v
+    public List<Integer> settledNodes;
+
+    //zbiór wierzchołków grafu, dla których najkrótsze ścieżki nie zostały jeszcze policzone
+    public List<Integer> unsettledNodes;
+
+
+    public static List<String> parse_file(String file_name) throws IOException {
+
+        File file = new File(file_name);
+        String content = "";
+        List<String> data = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            content = sb.toString();
+        }
+
+        String[] s1 = content.split("[\r\n]+");
+        for(int i = 0; i < s1.length; i++){
+            data.add(s1[i]);
+        }
+        return data;
+    }
+
+    public static List<Edge> stringToEdge(List<String> lista){
+
+        List<Edge> edges = new ArrayList<>();
+        for(int i = 0; i < lista.size(); i++){
+            String[] data = lista.get(i).split("; ");
+            Edge e = new Edge();
+            e.setSource(Integer.parseInt(data[0]));
+            e.setDestination(Integer.parseInt(data[1]));
+            e.setWeight(Integer.parseInt(data[2]));
+            edges.add(e);
+        }
+        return edges;
+    }
+
+    public void dijkstra_algorithm(List<Edge> edges) {
+
+        settledNodes = new ArrayList<>();
+        unsettledNodes = new ArrayList<>();
+        distance = new HashMap<>();
+        prev = new HashMap<>();
+        int sourceNode = 5;
+
+        // unsettled nodes = all the nodes in the graph
+        for (int i = 0; i < 20; i++) {
+            unsettledNodes.add(i);
+        }
+        unsettledNodes.remove(sourceNode);
+
+
+        // the source vertex is 1, so the distance is 0
+        distance.put(1, 0);
+
+        // setting the max value for each node
+        for (int i = 2; i < 21; i++) {
+            distance.put(i, Integer.MAX_VALUE);
+        }
+
+        for (int i = 1; i < 21; i++) {
+            prev.put(i, -1);
+        }
+
+        settledNodes.add(5);
+
+        Map<Integer, Integer> temp_values = new HashMap<>();
+        while (!unsettledNodes.isEmpty()) {
+            // finding the vertices connected with source node
+            for (int i = 0; i < edges.size(); i++) {
+                if (edges.get(i).getSource() == sourceNode) {
+                    temp_values.put(edges.get(i).getDestination(), edges.get(i).getWeight());
+                }
+            }
+
+            for (Map.Entry<Integer, Integer> entry : temp_values.entrySet()) {
+                //System.out.println(entry.getKey() + " " + entry.getValue());
+                if (distance.get(entry.getKey()) > distance.get(sourceNode) + temp_values.get(entry.getKey())) {
+                    distance.put(entry.getKey(), distance.get(sourceNode) + temp_values.get(entry.getKey()));
+                    prev.put(entry.getKey(), distance.get(sourceNode));
+                }
+            }
+
+            Map.Entry<Integer, Integer> min = Collections.min(temp_values.entrySet(),
+                    Comparator.comparingDouble(Map.Entry::getValue));
+            //System.out.println(ent.getKey());
+            settledNodes.add(min.getValue());
+            //System.out.println("Size: " + settledNodes.size());
+
+            unsettledNodes.remove(min.getValue());
+
+            //sourceNode = ent.getKey();
+            //System.out.println("Unsettled Size: " + unsettledNodes.size());
+            //System.out.println("Source node: " + sourceNode);
+        }
+    }
+
+    public static void main(String[] args){
+
+        List<String> lista;
+        List<Edge> edges;
+        Parser parser = new Parser();
+        try {
+            lista = parse_file("input.txt");
+            edges = stringToEdge(lista);
+            for (Edge e : edges) System.out.println(e.toString());
+            parser.dijkstra_algorithm(edges);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
