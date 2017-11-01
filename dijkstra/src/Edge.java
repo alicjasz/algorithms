@@ -23,6 +23,7 @@ public class Edge {
     public int getWeight(){ return weight; }
 
     public String toString(){
-        return "Source: " + source + " Dest: " + destination + " Weight: " + weight;
+        return " " + weight;
     }
+
 }

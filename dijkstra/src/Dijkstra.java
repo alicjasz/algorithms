@@ -1,6 +1,13 @@
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
+import org.apache.commons.collections15.Transformer;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -62,6 +69,7 @@ public class Dijkstra {
         distance = new HashMap<>();
         prev = new HashMap<>();
         int currentNode = 1; // the initial node as well
+        int endPoint = 20;
 
         // Creating graph
         DirectedSparseMultigraph graph = new DirectedSparseMultigraph();
@@ -75,6 +83,7 @@ public class Dijkstra {
             graph.addEdge(e, e.getSource(), e.getDestination(), EdgeType.DIRECTED);
         }
 
+
         for(Object v : graph.getVertices()){
             distance.put(Integer.parseInt(v.toString()), Integer.MAX_VALUE);
             prev.put(Integer.parseInt(v.toString()), -1);
@@ -83,26 +92,22 @@ public class Dijkstra {
 
         distance.put(currentNode, 0);
 
-        System.out.println("Distance: ");
-        for (Map.Entry<Integer, Integer> entry : distance.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
-
-        System.out.println("Prev: ");
-        for (Map.Entry<Integer, Integer> entry1 : prev.entrySet()) {
-            System.out.println(entry1.getKey() + " " + entry1.getValue());
-        }
-
-        System.out.println("Unvisited nodes: ");
-        for (Map.Entry<Integer, Integer> entry2 : distance.entrySet()) {
-            System.out.println(entry2.getKey() + " " + entry2.getValue());
-        }
-
-        List<Integer> neighbours = new ArrayList<>();
         while(!unvisitedNodes.isEmpty()) {
-            int vertex = dijkstra.getMinDist(distance, unvisitedNodes);
+
+            List<Integer> neighbours = new ArrayList<>();
+
+            Map<Integer, Integer> temp_values = new HashMap<>();
+            for(Map.Entry<Integer, Integer> entry : distance.entrySet()){
+                if(unvisitedNodes.contains(entry.getKey())){
+                    temp_values.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            Map.Entry<Integer, Integer> min = Collections.min(temp_values.entrySet(),
+                    Comparator.comparingDouble(Map.Entry::getValue));
+
+            int vertex = min.getKey();
             unvisitedNodes.remove(vertex);
-            //System.out.println("UnvisitedNode size: " + unvisitedNodes.size());
 
             for (Edge e : edges) {
                 if (e.getSource() == vertex) {
@@ -110,11 +115,12 @@ public class Dijkstra {
                 }
             }
 
+            /*System.out.println("For vertex " + vertex);
+            System.out.println(neighbours);*/
 
-            //System.out.println("Neighbours weights " + neighbours);
-            for (Integer n : neighbours) {
-                for(Edge e : edges){
-                    if(e.getDestination() == n){
+            for (Edge e : edges) {
+                for (Integer n : neighbours) {
+                    if (e.getDestination() == n && e.getSource() == vertex) {
                         int alt = distance.get(vertex) + e.getWeight();
                         //System.out.println(alt);
                         if (alt < distance.get(n)) {
@@ -126,36 +132,36 @@ public class Dijkstra {
             }
         }
 
-        int endPoint = 20;
-        LinkedList<Integer> sequenceList=new LinkedList<>();
-
-        while (String.valueOf(prev.get(endPoint)) != null || String.valueOf(endPoint) != null) {
-            sequenceList.addFirst(endPoint);
+        List<Integer> path = new ArrayList<>();
+        path.add(endPoint);
+        while(prev.get(endPoint) != currentNode){
+            path.add(prev.get(endPoint));
             endPoint = prev.get(endPoint);
-            if (endPoint == currentNode) {
-                sequenceList.addFirst(endPoint);
-                break;
-            }
-        }
-        System.out.println("Sequence list: " + sequenceList);
-    }
-
-    public int getMinDist(Map<Integer, Integer> distance, HashSet<Integer> unvisitedNodes) {
-
-        Map<Integer, Integer> temp_values = new HashMap<>();
-        for(Map.Entry<Integer, Integer> entry : distance.entrySet()){
-            if(unvisitedNodes.contains(entry.getKey())){
-                temp_values.put(entry.getKey(), entry.getValue());
+            if(prev.get(endPoint) == currentNode){
+                path.add(currentNode);
             }
         }
 
-        Map.Entry<Integer, Integer> min = Collections.min(temp_values.entrySet(),
-                Comparator.comparingDouble(Map.Entry::getValue));
-        //System.out.println("getMinDist " + min.getKey());
-        return min.getKey();
+        System.out.println("The shortest path between source and target: " + distance.get(distance.size()));
+        System.out.println("Path between source and target: " + path);
+
+        VisualizationViewer vv=new VisualizationViewer<String, Number>(new ISOMLayout<String, Number>(graph));
+        vv.getRenderContext().setEdgeLabelTransformer((Transformer<Edge, String>) o -> (o.toString()));
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+        JFrame frame = new JFrame("Dijkstra");
+
+        frame.getContentPane().add(vv);
+
+        DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
+        graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
+        vv.setGraphMouse(graphMouse);
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
     }
 
-    
+
     public static void main(String[] args){
 
         List<String> lista;
