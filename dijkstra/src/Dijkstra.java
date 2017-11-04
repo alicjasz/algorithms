@@ -1,13 +1,6 @@
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-import org.apache.commons.collections15.Transformer;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -115,9 +108,6 @@ public class Dijkstra {
                 }
             }
 
-            /*System.out.println("For vertex " + vertex);
-            System.out.println(neighbours);*/
-
             for (Edge e : edges) {
                 for (Integer n : neighbours) {
                     if (e.getDestination() == n && e.getSource() == vertex) {
@@ -132,6 +122,7 @@ public class Dijkstra {
             }
         }
 
+        // creating list of the shortest path nodes
         List<Integer> path = new ArrayList<>();
         path.add(endPoint);
         while(prev.get(endPoint) != currentNode){
@@ -144,21 +135,6 @@ public class Dijkstra {
 
         System.out.println("The shortest path between source and target: " + distance.get(distance.size()));
         System.out.println("Path between source and target: " + path);
-
-        VisualizationViewer vv=new VisualizationViewer<String, Number>(new ISOMLayout<String, Number>(graph));
-        vv.getRenderContext().setEdgeLabelTransformer((Transformer<Edge, String>) o -> (o.toString()));
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-        JFrame frame = new JFrame("Dijkstra");
-
-        frame.getContentPane().add(vv);
-
-        DefaultModalGraphMouse graphMouse = new DefaultModalGraphMouse();
-        graphMouse.setMode(ModalGraphMouse.Mode.PICKING);
-        vv.setGraphMouse(graphMouse);
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
     }
 
 
