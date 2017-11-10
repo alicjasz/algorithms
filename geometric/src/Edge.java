@@ -8,4 +8,19 @@ public class Edge {
         this.target = t;
     }
 
+    public Point getSource(){
+        return source;
+    }
+
+    public Point getTarget() {
+        return target;
+    }
+
+    public void setSource(Point source) {
+        this.source = source;
+    }
+
+    public void setTarget(Point target) {
+        this.target = target;
+    }
 }

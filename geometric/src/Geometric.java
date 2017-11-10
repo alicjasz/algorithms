@@ -1,7 +1,14 @@
+import static java.lang.Math.sqrt;
+
 public class Geometric {
 
     double dist(Point p1, Point p2) {
-        return 0;
+
+        double xDist = Math.pow(p1.getXCoord() - p2.getXCoord(), 2);
+        double yDist = Math.pow(p1.getYCoord() - p2.getYCoord(), 2);
+        double zDist = Math.pow(p1.getZCoord() - p2.getZCoord(), 2);
+
+        return sqrt(xDist +  yDist + zDist);
     }
 
     double dist(Edge e, Point p) {
