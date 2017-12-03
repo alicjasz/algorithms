@@ -20,7 +20,5 @@ public class Edge {
         this.source = source;
     }
 
-    public void setTarget(Point target) {
-        this.target = target;
-    }
+    public void setTarget(Point target) { this.target = target; }
 }

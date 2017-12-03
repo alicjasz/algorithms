@@ -10,6 +10,9 @@ public class Point {
         this.z = z;
     }
 
+    public Point(Point face_point) {
+    }
+
     public double getXCoord(){
         return  x;
     }

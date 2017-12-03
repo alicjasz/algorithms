@@ -1,25 +1,22 @@
+import java.util.Arrays;
+import java.util.List;
+
 public class Solid {
 
-    Face [] faces;
+    Face [] f;
     int size;
 
-    public void add_face(Face face){
-        faces[size] = face;
-    }
-
-    public int getSize() {
-        return size;
-    }
-
-    public Face[] getFaces() {
-        return faces;
-    }
-
-    public void setFaces(Face[] faces) {
-        this.faces = faces;
-    }
-
-    public void setSize(int size) {
+    public Solid(List<Face> faces, int size){
+        this.f = new Face[size];
+        this.f = faces.toArray(this.f);
         this.size = size;
+    }
+
+    public Solid() {
+
+    }
+
+    public Face[] getFaces(){
+        return Arrays.copyOf(f, f.length);
     }
 }
